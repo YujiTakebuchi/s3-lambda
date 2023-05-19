@@ -1,9 +1,5 @@
 export const handler = async (event, context, callback) => {
-  console.log("Hello Lambda!");
-  return JSON.stringify({
-    statusCode: 200,
-    body: {
-      message: "Hello Lambda!",
-    },
+  return fs.readFile("./uploads/metal-gear-solid-jamming.gif").then((f) => {
+    console.log(f);
   });
 };
