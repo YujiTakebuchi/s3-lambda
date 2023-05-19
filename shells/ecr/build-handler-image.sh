@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t s3-lambda .
+docker build -t s3-lambda-image .
