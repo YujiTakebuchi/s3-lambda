@@ -1,5 +1,15 @@
 import * as fs from "node:fs/promises";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
+import { putObjectS3 } from "./aws-s3.mjs";
+
+const createS3Client = (config = {}) => {
+  return new S3Client(config);
+};
+
+const createPutObjectCommand = (input) => {
+  return new PutObjectCommand(input);
+};
 
 const createPutObjectCommandInputByLocalFile = async (
   bucket,
@@ -36,12 +46,34 @@ export const handler = async (event, context, callback) => {
   dotenv.config();
   const env = process.env;
   const bucket = env.S3_BUCKET_NAME;
+  const region = env.AWS_REGION;
+  console.log(region);
+  console.log(bucket);
+  console.log(env.LOCALSTACK_HOSTNAME);
+  const s3Client = createS3Client({
+    region,
+    endpoint: env.LOCALSTACK_HOSTNAME
+      ? `http://${env.LOCALSTACK_HOSTNAME}:4566`
+      : null,
+  });
   return createPutObjectCommandInputByLocalFile(
     bucket,
     "./uploads/metal-gear-solid-jamming.gif",
     "image/gif",
     "metal-gear-solid-jamming.gif"
-  ).then((data) => {
-    console.log(data);
-  });
+  )
+    .then((input) => {
+      console.log(input);
+      const command = createPutObjectCommand(input);
+      return putObjectS3(s3Client, command);
+    })
+    .then((res) => {
+      console.log(res);
+      return res;
+    })
+    .catch((err) => {
+      console.error(err);
+      callback(err);
+      return err;
+    });
 };
