@@ -55,12 +55,13 @@ export const handler = async (event, context, callback) => {
     endpoint: env.LOCALSTACK_HOSTNAME
       ? `http://${env.LOCALSTACK_HOSTNAME}:4566`
       : null,
+    forcePathStyle: true,
   });
   return createPutObjectCommandInputByLocalFile(
     bucket,
-    "./uploads/metal-gear-solid-jamming.gif",
-    "image/gif",
-    "metal-gear-solid-jamming.gif"
+    "./uploads/AVIF_logo.png",
+    "image/png",
+    "AVIF_logo.png"
   )
     .then((input) => {
       console.log(input);
