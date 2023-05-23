@@ -1,7 +1,8 @@
 FROM public.ecr.aws/lambda/nodejs:18
 
 # Assumes your function is named "app.js", and there is a package.json file in the app directory 
-COPY index.mjs aws-s3.mjs package.json .env  ${LAMBDA_TASK_ROOT}/
+COPY index.mjs aws-s3.mjs package.json .env ${LAMBDA_TASK_ROOT}/
+COPY uploads/ ${LAMBDA_TASK_ROOT}/
 
 # Install NPM dependencies for function
 RUN npm install
