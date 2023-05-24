@@ -24,3 +24,30 @@ export const putObjectS3 = async (s3Client, uploadCommand) => {
       throw new Error(JSON.stringify(response));
     });
 };
+
+export const deleteObjectsS3 = async (s3Client, deleteCommand) => {
+  return s3Client
+    .send(deleteCommand)
+    .then((data) => {
+      console.log("Success to delete files!");
+      console.log(data);
+      const response = {
+        statusCode: 200,
+        body: {
+          message: "Success to delete file!",
+        },
+      };
+      return JSON.stringify(response);
+    })
+    .catch((err) => {
+      console.error("Failed to delete file...");
+      console.error(err);
+      const response = {
+        statusCode: 500,
+        body: {
+          message: "Failed to delete file...",
+        },
+      };
+      throw new Error(JSON.stringify(response));
+    });
+};
