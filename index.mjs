@@ -61,7 +61,6 @@ const createDeleteObjectsCommandInput = (bucket, fileNameList) => {
       }),
     },
   };
-  console.log(input);
   return input;
 };
 
@@ -70,9 +69,10 @@ export const handler = async (event, context, callback) => {
   const env = process.env;
   const bucket = env.S3_BUCKET_NAME;
   const region = env.AWS_REGION;
+  console.log("region");
   console.log(region);
+  console.log("bucket name");
   console.log(bucket);
-  console.log(env.LOCALSTACK_HOSTNAME);
   const s3Client = createS3Client({
     region,
     endpoint: env.LOCALSTACK_HOSTNAME
