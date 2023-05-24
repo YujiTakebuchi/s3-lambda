@@ -1,14 +1,19 @@
 import * as fs from "node:fs/promises";
 import {
   S3Client,
+  GetObjectCommand,
   PutObjectCommand,
   DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
-import { deleteObjectsS3, putObjectS3 } from "./aws-s3.mjs";
+import { deleteObjectsS3, getObjectS3, putObjectS3 } from "./aws-s3.mjs";
 
 const createS3Client = (config = {}) => {
   return new S3Client(config);
+};
+
+const createGeteObjectsCommand = (input) => {
+  return new GetObjectCommand(input);
 };
 
 const createPutObjectCommand = (input) => {
@@ -17,6 +22,14 @@ const createPutObjectCommand = (input) => {
 
 const createDeleteObjectsCommand = (input) => {
   return new DeleteObjectsCommand(input);
+};
+
+const createGetObjectsCommandInput = (bucket, fileName) => {
+  const input = {
+    Bucket: bucket,
+    Key: fileName,
+  };
+  return input;
 };
 
 const createPutObjectCommandInputByLocalFile = async (
@@ -81,6 +94,20 @@ export const handler = async (event, context, callback) => {
     forcePathStyle: true,
   });
 
+  // ファイルダウンロード
+  const input = createGetObjectsCommandInput(bucket, "AVIF_logo.png");
+  const command = createGeteObjectsCommand(input);
+  return getObjectS3(s3Client, command)
+    .then((res) => {
+      console.log(res);
+      return res;
+    })
+    .catch((err) => {
+      console.error(err);
+      callback(err);
+      return err;
+    });
+
   // ファイルアップロード
   // return createPutObjectCommandInputByLocalFile(
   //   bucket,
@@ -104,16 +131,16 @@ export const handler = async (event, context, callback) => {
   //   });
 
   // ファイル削除
-  const input = createDeleteObjectsCommandInput(bucket, ["AVIF_logo.png"]);
-  const command = createDeleteObjectsCommand(input);
-  return deleteObjectsS3(s3Client, command)
-    .then((res) => {
-      console.log(res);
-      return res;
-    })
-    .catch((err) => {
-      console.error(err);
-      callback(err);
-      return err;
-    });
+  // const input = createDeleteObjectsCommandInput(bucket, ["AVIF_logo.png"]);
+  // const command = createDeleteObjectsCommand(input);
+  // return deleteObjectsS3(s3Client, command)
+  //   .then((res) => {
+  //     console.log(res);
+  //     return res;
+  //   })
+  //   .catch((err) => {
+  //     console.error(err);
+  //     callback(err);
+  //     return err;
+  //   });
 };
