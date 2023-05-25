@@ -1,4 +1,5 @@
 import * as fs from "node:fs/promises";
+import { createWriteStream } from "node:fs";
 import {
   S3Client,
   GetObjectCommand,
@@ -100,6 +101,11 @@ export const handler = async (event, context, callback) => {
   return getObjectS3(s3Client, command)
     .then((res) => {
       console.log(res);
+      const { Body } = res;
+      const destFile = createWriteStream("AVIF_logo-download.png", "utf8");
+      console.log("typeof Body");
+      console.log(typeof Body);
+      Body.pipe(destFile);
       return res;
     })
     .catch((err) => {
