@@ -21,6 +21,7 @@ AWS の Lambda を使って S3 へのアクセスを試すリポジトリ
 
 - `AWS_ACCOUNT_ID`: AWS のアカウント ID
 - `AWS_REGION`: AWS のリージョン情報
+- `AWS_S3_LAMBDA_ROLE_ARN`: S3 を扱った Lambda 関数実行のためのロール ARN
 
 ### 設定する必要がないもの
 
