@@ -1,5 +1,7 @@
 import * as fs from "node:fs/promises";
 import { createWriteStream } from "node:fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import {
   S3Client,
   GetObjectCommand,
@@ -98,6 +100,8 @@ export const handler = async (event, context, callback) => {
   // ファイルダウンロード
   const input = createGetObjectsCommandInput(bucket, "AVIF_logo.png");
   const command = createGeteObjectsCommand(input);
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
   return getObjectS3(s3Client, command)
     .then((res) => {
       console.log("res");
@@ -105,10 +109,19 @@ export const handler = async (event, context, callback) => {
       console.log("res.Body");
       console.log(res.Body);
       const body = res.Body;
-      const destFile = createWriteStream("AVIF_logo-download.png", "utf8");
       console.log("typeof Body");
       console.log(typeof body);
-      body.pipe(destFile);
+      const destFile = createWriteStream(
+        path.join(__dirname, "AVIF_logo-download.png")
+      );
+      destFile.on("finish", () => {
+        console.log("success");
+      });
+      destFile.write(body);
+      destFile.end();
+      // const toString = Object.prototype.toString;
+      // console.log(toString.call(body));
+      // body.pipe(destFile);
       const response = {
         statusCode: 200,
         body: {
