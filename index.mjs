@@ -100,13 +100,22 @@ export const handler = async (event, context, callback) => {
   const command = createGeteObjectsCommand(input);
   return getObjectS3(s3Client, command)
     .then((res) => {
+      console.log("res");
       console.log(res);
-      const { Body } = res;
+      console.log("res.Body");
+      console.log(res.Body);
+      const body = res.Body;
       const destFile = createWriteStream("AVIF_logo-download.png", "utf8");
       console.log("typeof Body");
-      console.log(typeof Body);
-      Body.pipe(destFile);
-      return res;
+      console.log(typeof body);
+      body.pipe(destFile);
+      const response = {
+        statusCode: 200,
+        body: {
+          message: "Success to download file!",
+        },
+      };
+      return JSON.stringify(response);
     })
     .catch((err) => {
       console.error(err);
