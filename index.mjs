@@ -114,6 +114,7 @@ export const handler = async (event, context, callback) => {
   return listBucketsS3(s3Client, command)
     .then((res) => {
       console.log(res);
+      console.log(res.Buckets);
       return res;
     })
     .catch((err) => {
