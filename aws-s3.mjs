@@ -2,23 +2,23 @@ export const createBucketS3 = async (s3Client, createBucketCommand) => {
   return s3Client
     .send(createBucketCommand)
     .then((data) => {
-      console.log("Success to upload file!");
+      console.log("Success to create bucket!");
       console.log(data);
       const response = {
         statusCode: 200,
         body: {
-          message: "Success to upload file!",
+          message: "Success to create bucket!",
         },
       };
       return JSON.stringify(response);
     })
     .catch((err) => {
-      console.error("Failed to upload file...");
+      console.error("Failed to create bucket...");
       console.error(err);
       const response = {
         statusCode: 500,
         body: {
-          message: "Failed to upload file...",
+          message: "Failed to create bucket...",
         },
       };
       throw new Error(JSON.stringify(response));
