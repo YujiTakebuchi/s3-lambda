@@ -109,19 +109,19 @@ export const handler = async (event, context, callback) => {
   });
 
   // バケット一覧
-  const input = createListBucketsCommandInput();
-  const command = createListBucketsCommand(input);
-  return listBucketsS3(s3Client, command)
-    .then((res) => {
-      console.log(res);
-      console.log(res.Buckets);
-      return res;
-    })
-    .catch((err) => {
-      console.error(err);
-      callback(err);
-      return err;
-    });
+  // const input = createListBucketsCommandInput();
+  // const command = createListBucketsCommand(input);
+  // return listBucketsS3(s3Client, command)
+  //   .then((res) => {
+  //     console.log(res);
+  //     console.log(res.Buckets);
+  //     return res;
+  //   })
+  //   .catch((err) => {
+  //     console.error(err);
+  //     callback(err);
+  //     return err;
+  //   });
 
   // バケット作成
   // const input = createCreateBucketCommandInput(bucket);
@@ -136,6 +136,40 @@ export const handler = async (event, context, callback) => {
   //     callback(err);
   //     return err;
   //   });
+
+  // バケット一覧に含まれてないバケット作成
+  const input = createListBucketsCommandInput();
+  const command = createListBucketsCommand(input);
+  return listBucketsS3(s3Client, command)
+    .then((res) => {
+      console.log("ListBucket response");
+      console.log(res);
+      const buckets = res.Buckets;
+      console.log("List of bucket");
+      console.log(buckets);
+      const bucketNames = buckets.map((b) => b.Name);
+      console.log("List of bucket name");
+      console.log(bucketNames);
+      if (bucketNames.includes(bucket)) {
+        const response = {
+          statusCode: 200,
+          body: {
+            message: "Bucket is already exist!",
+          },
+        };
+        return JSON.stringify(response);
+      } else {
+        const inputCreateBucket = createCreateBucketCommandInput(bucket);
+        const commandCreateBucket =
+          createCreateBucketCommand(inputCreateBucket);
+        return createBucketS3(s3Client, commandCreateBucket);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      callback(err);
+      return err;
+    });
 
   // ファイルアップロード
   // return createPutObjectCommandInputByLocalFile(
