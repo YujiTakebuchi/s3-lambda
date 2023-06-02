@@ -46,6 +46,33 @@ export const createBucketS3 = async (s3Client, createBucketCommand) => {
     });
 };
 
+export const deleteBucketS3 = async (s3Client, deleteBucketCommand) => {
+  return s3Client
+    .send(deleteBucketCommand)
+    .then((data) => {
+      console.log("Success to delete bucket!");
+      console.log(data);
+      const response = {
+        statusCode: 200,
+        body: {
+          message: "Success to delete bucket!",
+        },
+      };
+      return JSON.stringify(response);
+    })
+    .catch((err) => {
+      console.error("Failed to delete bucket...");
+      console.error(err);
+      const response = {
+        statusCode: 500,
+        body: {
+          message: "Failed to delete bucket...",
+        },
+      };
+      throw new Error(JSON.stringify(response));
+    });
+};
+
 export const putObjectS3 = async (s3Client, uploadCommand) => {
   return s3Client
     .send(uploadCommand)
