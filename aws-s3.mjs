@@ -79,14 +79,6 @@ export const getObjectS3 = async (s3Client, downloadCommand) => {
     .then((data) => {
       console.log("Success to download file!");
       console.log(data);
-      console.log(data["Body"]);
-      // const response = {
-      //   statusCode: 200,
-      //   body: {
-      //     message: "Success to download file!",
-      //   },
-      // };
-      // return JSON.stringify(response);
       return data;
     })
     .catch((err) => {
