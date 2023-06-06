@@ -15,10 +15,10 @@ import dotenv from "dotenv";
 import {
   listBucketsS3,
   createBucketS3,
-  getObjectS3,
-  deleteObjectsS3,
-  putObjectS3,
   deleteBucketS3,
+  getObjectS3,
+  putObjectS3,
+  deleteObjectsS3,
 } from "./aws-s3.mjs";
 
 const createS3Client = (config = {}) => {
