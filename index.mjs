@@ -1,9 +1,14 @@
 import * as fs from "node:fs/promises";
+import { createWriteStream } from "node:fs";
+import path from "path";
+import { Readable } from "stream";
+import { fileURLToPath } from "url";
 import {
   S3Client,
   ListBucketsCommand,
   CreateBucketCommand,
   DeleteBucketCommand,
+  GetObjectCommand,
   PutObjectCommand,
   DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
@@ -11,9 +16,10 @@ import dotenv from "dotenv";
 import {
   listBucketsS3,
   createBucketS3,
-  deleteObjectsS3,
-  putObjectS3,
   deleteBucketS3,
+  getObjectS3,
+  putObjectS3,
+  deleteObjectsS3,
 } from "./aws-s3.mjs";
 
 const createS3Client = (config = {}) => {
@@ -30,6 +36,10 @@ const createCreateBucketCommand = (input) => {
 
 const createDeleteBucketCommand = (input) => {
   return new DeleteBucketCommand(input);
+};
+
+const createGeteObjectsCommand = (input) => {
+  return new GetObjectCommand(input);
 };
 
 const createPutObjectCommand = (input) => {
@@ -55,6 +65,14 @@ const createCreateBucketCommandInput = (bucket) => {
 const createDeleteBucketCommandInput = (bucket) => {
   const input = {
     Bucket: bucket,
+  };
+  return input;
+};
+
+const createGetObjectsCommandInput = (bucket, fileName) => {
+  const input = {
+    Bucket: bucket,
+    Key: fileName,
   };
   return input;
 };
@@ -151,12 +169,50 @@ export const handler = async (event, context, callback) => {
   //   });
 
   // バケット削除
-  const input = createDeleteBucketCommandInput(bucket);
-  const command = createDeleteBucketCommand(input);
-  return deleteBucketS3(s3Client, command)
+  // const input = createDeleteBucketCommandInput(bucket);
+  // const command = createDeleteBucketCommand(input);
+  // return deleteBucketS3(s3Client, command)
+  //   .then((res) => {
+  //     console.log(res);
+  //     return res;
+  //   })
+  //   .catch((err) => {
+  //     console.error(err);
+  //     callback(err);
+  //     return err;
+  //   });
+
+  // ファイルダウンロード
+  const input = createGetObjectsCommandInput(bucket, "AVIF_logo.png");
+  const command = createGeteObjectsCommand(input);
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  return getObjectS3(s3Client, command)
     .then((res) => {
-      console.log(res);
-      return res;
+      const body = res.Body;
+      if (res.Body instanceof Readable) {
+        body
+          .pipe(createWriteStream("AVIF_logo-download.png"))
+          .on("error", (err) => reject(err))
+          .on("close", () => resolve(0));
+        const response = {
+          statusCode: 200,
+          body: {
+            message: "Success to download file!",
+          },
+        };
+        return JSON.stringify(response);
+      } else {
+        const errMsg = "This is not ReadableStream object!";
+        const errRes = {
+          statusCode: 400,
+          body: {
+            message: errMsg,
+          },
+        };
+        console.error(errRes);
+        throw new Error(errMsg);
+      }
     })
     .catch((err) => {
       console.error(err);
