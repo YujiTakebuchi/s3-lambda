@@ -190,17 +190,29 @@ export const handler = async (event, context, callback) => {
   return getObjectS3(s3Client, command)
     .then((res) => {
       const body = res.Body;
-      body
-        .pipe(createWriteStream("AVIF_logo-download.png"))
-        .on("error", (err) => reject(err))
-        .on("close", () => resolve(0));
-      const response = {
-        statusCode: 200,
-        body: {
-          message: "Success to download file!",
-        },
-      };
-      return JSON.stringify(response);
+      if (res.Body instanceof Readable) {
+        body
+          .pipe(createWriteStream("AVIF_logo-download.png"))
+          .on("error", (err) => reject(err))
+          .on("close", () => resolve(0));
+        const response = {
+          statusCode: 200,
+          body: {
+            message: "Success to download file!",
+          },
+        };
+        return JSON.stringify(response);
+      } else {
+        const errMsg = "This is not ReadableStream object!";
+        const errRes = {
+          statusCode: 400,
+          body: {
+            message: errMsg,
+          },
+        };
+        console.error(errRes);
+        throw new Error(errMsg);
+      }
     })
     .catch((err) => {
       console.error(err);
