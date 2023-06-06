@@ -1,6 +1,7 @@
 import * as fs from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import path from "path";
+import { Readable } from "stream";
 import { fileURLToPath } from "url";
 import {
   S3Client,
@@ -192,17 +193,25 @@ export const handler = async (event, context, callback) => {
       console.log(res);
       console.log("res.Body");
       console.log(res.Body);
+      console.log("is Readable");
+      console.log(res.Body instanceof Readable);
       const body = res.Body;
+      console.log("is Readable");
+      console.log(body instanceof Readable);
       console.log("typeof Body");
       console.log(typeof body);
-      const destFile = createWriteStream(
-        path.join(__dirname, "AVIF_logo-download.png")
-      );
-      destFile.on("finish", () => {
-        console.log("success");
-      });
-      destFile.write(body);
-      destFile.end();
+      body
+        .pipe(createWriteStream("AVIF_logo-download.png"))
+        .on("error", (err) => reject(err))
+        .on("close", () => resolve(0));
+      // const destFile = createWriteStream(
+      //   path.join(__dirname, "AVIF_logo-download.png")
+      // );
+      // destFile.on("finish", () => {
+      //   console.log("success");
+      // });
+      // destFile.write(body);
+      // destFile.end();
       // const toString = Object.prototype.toString;
       // console.log(toString.call(body));
       // body.pipe(destFile);
